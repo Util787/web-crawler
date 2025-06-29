@@ -39,6 +39,54 @@ func TestNormalizeUrl(t *testing.T) {
 			want:    "someurl.com/path/to/resource",
 			wantErr: false,
 		},
+		{
+			name:    "Not url",
+			rawUrl:  "not a url",
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "Empty string",
+			rawUrl:  "",
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "Whitespace only",
+			rawUrl:  "   ",
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "Missing host",
+			rawUrl:  "https:///path",
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "Invalid host",
+			rawUrl:  "https://someurl/path",
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "Missing path",
+			rawUrl:  "https://someurl.com",
+			want:    "someurl.com",
+			wantErr: false,
+		},
+		{
+			name:    "Unsupported scheme",
+			rawUrl:  "tttt://someurl.com/path",
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "Missing scheme",
+			rawUrl:  "someurl.com/path",
+			want:    "",
+			wantErr: true,
+		},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
