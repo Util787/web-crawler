@@ -9,6 +9,7 @@ import (
 )
 
 // in current state func return both internal and external urls
+// it returns every url (not only unique)
 func GetURLsFromHTML(htmlBody, rawBaseURL string) ([]string, error) {
 	urls := []string{}
 	baseURL, err := url.Parse(rawBaseURL)

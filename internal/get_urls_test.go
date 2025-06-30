@@ -45,6 +45,30 @@ func Test_getURLsFromHTML(t *testing.T) {
 			want:    []string{"https://example.com/path/one", "https://other.com/path/one"},
 			wantErr: false,
 		},
+		{
+			name:       "OK with multiple equal links",
+			rawBaseURL: "https://example.com",
+			htmlBody: `
+		<html>
+			<body>
+				<a href="/path/one">
+					<span>Example</span>
+				</a>
+				<a href="https://other.com/path/one">
+					<span>Example</span>
+				</a>
+                <a href="https://other.com/path/one">
+					<span>Example</span>
+				</a>
+                <a href="https://other.com/path/one">
+					<span>Example</span>
+				</a>
+			</body>
+		</html>
+		`,
+			want:    []string{"https://example.com/path/one", "https://other.com/path/one", "https://other.com/path/one", "https://other.com/path/one"},
+			wantErr: false,
+		},
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
