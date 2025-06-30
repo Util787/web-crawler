@@ -8,9 +8,9 @@ import (
 
 // TODO: add db
 type Crawler struct {
-	Client *common.Client
+	client *common.Client
 }
 
 func New(httpClientTimeout time.Duration) *Crawler {
-	return &Crawler{Client: common.NewClientWithTimeout(httpClientTimeout)}
+	return &Crawler{client: common.NewClientWithTimeout(httpClientTimeout)}
 }
