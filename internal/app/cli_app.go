@@ -3,6 +3,8 @@ package app
 import (
 	"fmt"
 	"os"
+
+	"github.com/Util787/web-crawler/internal/common"
 )
 
 func Run() {
@@ -20,4 +22,13 @@ func Run() {
 
 	url := args[1]
 	fmt.Printf("Starting crawl of:%s\n", url)
+
+	client := common.NewClient()
+	html, err := client.GetHTML(url)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	
+	fmt.Println(html)
 }
