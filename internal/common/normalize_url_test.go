@@ -90,7 +90,7 @@ func TestNormalizeUrl(t *testing.T) {
 	}
 	for _, testCase := range tests {
 		t.Run(testCase.name, func(t *testing.T) {
-			got, err := NormalizeUrl(testCase.rawUrl)
+			got, err := NormalizeURL(testCase.rawUrl)
 			if (err != nil) != testCase.wantErr {
 				t.Errorf("NormalizeUrl() error = %v, wantErr %v", err, testCase.wantErr)
 				return

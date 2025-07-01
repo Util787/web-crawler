@@ -6,14 +6,18 @@ import (
 	"strings"
 )
 
-//If we have the following urls:
+// If we have the following urls:
+//
 // https://someurl.com/path/
+//
 // https://someurl.com/path
+//
 // http://someurl.com/path/
+//
 // http://someurl.com/path
-
+//
 // NormalizeUrl will normalize those urls to the someurl.com/path
-func NormalizeUrl(rawUrl string) (string, error) {
+func NormalizeURL(rawUrl string) (string, error) {
 	if strings.TrimSpace(rawUrl) == "" {
 		return "", fmt.Errorf("empty raw url")
 	}
