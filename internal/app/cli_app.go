@@ -2,12 +2,16 @@ package app
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
+	"time"
 
-	"github.com/Util787/web-crawler/internal/common"
+	"github.com/Util787/web-crawler/internal/crawler"
 )
 
-func Run() {
+const httpClientTimeout = 5 * time.Second
+
+func Run(log *slog.Logger) {
 	args := os.Args
 	if len(args) < 2 {
 		fmt.Println(args)
@@ -21,14 +25,11 @@ func Run() {
 	}
 
 	url := args[1]
-	fmt.Printf("Starting crawl of:%s\n", url)
+	log.Info("Starting crawl", slog.String("url", url))
 
-	client := common.NewClient()
-	html, err := client.GetHTML(url)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	
-	fmt.Println(html)
+	c := crawler.New(httpClientTimeout, log)
+	pages := make(map[string]int)
+	c.CrawlPage(url, url, pages)
+
+	log.Info("Found pages after crawl", slog.Any("pages", pages))
 }
