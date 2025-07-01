@@ -25,11 +25,11 @@ func Run(log *slog.Logger) {
 	}
 
 	url := args[1]
-	log.Info("Starting crawl", slog.String("url", url))
+	log.Info("Starting crawler", slog.String("url", url))
 
 	c := crawler.New(httpClientTimeout, log)
-	pages := make(map[string]int)
+	pages := make(map[string]struct{})
 	c.CrawlPage(url, url, pages)
 
-	log.Info("Found pages after crawl", slog.Any("pages", pages))
+	log.Info("Found pages after crawl", slog.Int("pages_length", len(pages)), slog.Any("pages", pages))
 }
