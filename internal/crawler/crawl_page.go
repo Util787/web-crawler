@@ -9,12 +9,6 @@ import (
 
 func (c *Crawler) CrawlPage(baseUrl, currentUrl string, pages map[string]struct{}) {
 
-	err := common.ValidateURLDomain(baseUrl, currentUrl)
-	if err != nil {
-		c.log.Warn("Current URL is not on the same domain as the base URL", sl.Err(err), slog.String("current_url", currentUrl), slog.String("base_url", baseUrl))
-		return
-	}
-
 	c.log.Info("Crawling page", slog.String("current_url", currentUrl))
 	html, err := c.client.GetHTML(currentUrl)
 	if err != nil {
@@ -29,7 +23,9 @@ func (c *Crawler) CrawlPage(baseUrl, currentUrl string, pages map[string]struct{
 	}
 
 	for _, url := range urls {
-		if _, ok := pages[url]; ok {
+		err := common.ValidateURLDomain(baseUrl, url)
+		if err != nil {
+			c.log.Warn("Current URL is not on the same domain as the base URL", sl.Err(err), slog.String("current_url", url), slog.String("base_url", baseUrl))
 			continue
 		}
 
@@ -38,8 +34,12 @@ func (c *Crawler) CrawlPage(baseUrl, currentUrl string, pages map[string]struct{
 			c.log.Error("Error normalizing URL", sl.Err(err))
 			continue
 		}
+
+		if _, ok := pages[normalizedUrl]; ok {
+			continue
+		}
 		pages[normalizedUrl] = struct{}{}
 
-		c.CrawlPage(baseUrl, normalizedUrl, pages)
+		c.CrawlPage(baseUrl, url, pages)
 	}
 }
