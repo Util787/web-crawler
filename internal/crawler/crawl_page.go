@@ -25,7 +25,7 @@ func (c *Crawler) CrawlPage(baseUrl, currentUrl string, pages map[string]struct{
 	for _, url := range urls {
 		err := common.ValidateURLDomain(baseUrl, url)
 		if err != nil {
-			c.log.Warn("Current URL is not on the same domain as the base URL", sl.Err(err), slog.String("current_url", url), slog.String("base_url", baseUrl))
+			c.log.Debug("Current URL is not on the same domain as the base URL", sl.Err(err), slog.String("current_url", url), slog.String("base_url", baseUrl))
 			continue
 		}
 
