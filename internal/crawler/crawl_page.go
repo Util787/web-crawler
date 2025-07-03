@@ -39,8 +39,15 @@ func (c *Crawler) CrawlPage(currentUrl string) {
 		if _, ok := c.Pages[normalizedUrl]; ok {
 			continue
 		}
+		c.mu.Lock()
 		c.Pages[normalizedUrl] = struct{}{}
+		c.mu.Unlock()
 
-		c.CrawlPage(url)
+		c.Wg.Add(1)
+		go func() {
+			defer c.Wg.Done()
+			c.CrawlPage(url)
+		}()
+
 	}
 }

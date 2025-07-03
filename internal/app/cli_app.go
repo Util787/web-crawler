@@ -29,7 +29,14 @@ func Run(log *slog.Logger) {
 
 	c := crawler.New(httpClientTimeout, log, baseURL)
 
-	c.CrawlPage(baseURL)
+	c.Wg.Add(1)
+	go func() {
+		defer c.Wg.Done()
+		c.CrawlPage(baseURL)
+	}()
+	c.Wg.Wait()
 
 	log.Info("Found pages after crawl", slog.Int("pages_length", len(c.Pages)), slog.Any("pages", c.Pages))
 }
+
+// for test: go run cmd/main.go https://www.wagslane.dev
