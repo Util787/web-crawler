@@ -21,6 +21,7 @@ func (c *Crawler) CrawlPage(currentUrl string) {
 		c.log.Error("Error getting URLs", sl.Err(err))
 		return
 	}
+	c.log.Debug("Found URLs", slog.Int("urls_length", len(urls)), slog.Any("urls", urls), slog.String("current_url", currentUrl))
 
 	for _, url := range urls {
 		err := common.ValidateURLDomain(c.baseURL, url)
