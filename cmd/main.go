@@ -5,37 +5,11 @@ import (
 	"os"
 
 	"github.com/Util787/task-manager/pkg/logger/handlers/slogpretty"
-	"github.com/Util787/web-crawler/internal/app"
-)
-
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
+	v2 "github.com/Util787/web-crawler/internal/app/v2"
 )
 
 func main() {
-	log := setupLogger(envLocal)
-	app.Run(log)
-}
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-
-	switch env {
-	case envLocal:
-		log = setupPrettySlog()
-	case envDev:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-	case envProd:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
-		)
-	}
-
-	return log
+	v2.Run(setupPrettySlog())
 }
 
 func setupPrettySlog() *slog.Logger {
