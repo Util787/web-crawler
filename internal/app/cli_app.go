@@ -10,6 +10,7 @@ import (
 )
 
 const httpClientTimeout = 5 * time.Second
+const concurrencyLimit = 100
 
 func Run(log *slog.Logger) {
 	args := os.Args
@@ -27,7 +28,12 @@ func Run(log *slog.Logger) {
 	baseURL := args[1]
 	log.Info("Starting crawler", slog.String("url", baseURL))
 
-	c := crawler.New(httpClientTimeout, log, baseURL)
+	c := crawler.New(httpClientTimeout, log, baseURL, concurrencyLimit)
+
+	start := time.Now()
+	defer func() {
+		log.Info("Crawler took", slog.Duration("duration", time.Duration(time.Since(start).Milliseconds())))
+	}()
 
 	c.Wg.Add(1)
 	go func() {

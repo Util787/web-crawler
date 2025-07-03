@@ -20,7 +20,7 @@ type Crawler struct {
 	Wg                 *sync.WaitGroup
 }
 
-func New(httpClientTimeout time.Duration, log *slog.Logger, baseURL string) *Crawler {
+func New(httpClientTimeout time.Duration, log *slog.Logger, baseURL string, concurrencyLimit int) *Crawler {
 	pages := make(map[string]struct{})
 	normalizedBaseURL, err := common.NormalizeURL(baseURL)
 	if err != nil {
@@ -35,7 +35,7 @@ func New(httpClientTimeout time.Duration, log *slog.Logger, baseURL string) *Cra
 		log:                log,
 		Pages:              pages,
 		mu:                 &sync.Mutex{},
-		concurrencyControl: make(chan struct{}, 3),
+		concurrencyControl: make(chan struct{}, concurrencyLimit),
 		Wg:                 &sync.WaitGroup{},
 	}
 }

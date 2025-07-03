@@ -9,6 +9,9 @@ import (
 
 func (c *Crawler) CrawlPage(currentUrl string) {
 
+	c.concurrencyControl <- struct{}{}
+	defer func() { <-c.concurrencyControl }()
+
 	c.log.Info("Crawling page", slog.String("current_url", currentUrl))
 	html, err := c.client.GetHTML(currentUrl)
 	if err != nil {
