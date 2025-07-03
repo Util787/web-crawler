@@ -28,18 +28,8 @@ func NormalizeURL(rawUrl string) (string, error) {
 	}
 
 	// If the scheme is invalid then url.Parse wont work correctly
-	if parsedUrl.Scheme == "" {
-		return "", fmt.Errorf("missing scheme (http:// or https://)")
-	}
-	if parsedUrl.Scheme != "http" && parsedUrl.Scheme != "https" {
-		return "", fmt.Errorf("unsupported scheme: %s (http:// or https:// only)", parsedUrl.Scheme)
-	}
-
-	if parsedUrl.Host == "" {
-		return "", fmt.Errorf("URL has no host")
-	}
-	if !strings.Contains(parsedUrl.Host, ".") {
-		return "", fmt.Errorf("invalid host: %s", parsedUrl.Host)
+	if err := ValidateURL(rawUrl); err != nil {
+		return "", err
 	}
 
 	normalized := parsedUrl.Host + strings.TrimRight(parsedUrl.Path, "/")
