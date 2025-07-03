@@ -7,7 +7,7 @@ import (
 	"github.com/Util787/web-crawler/internal/common"
 )
 
-func (c *Crawler) CrawlPage(baseUrl, currentUrl string, pages map[string]struct{}) {
+func (c *Crawler) CrawlPage(currentUrl string) {
 
 	c.log.Info("Crawling page", slog.String("current_url", currentUrl))
 	html, err := c.client.GetHTML(currentUrl)
@@ -16,16 +16,16 @@ func (c *Crawler) CrawlPage(baseUrl, currentUrl string, pages map[string]struct{
 		return
 	}
 
-	urls, err := common.GetURLsFromHTML(html, baseUrl)
+	urls, err := common.GetURLsFromHTML(html, c.baseURL)
 	if err != nil {
 		c.log.Error("Error getting URLs", sl.Err(err))
 		return
 	}
 
 	for _, url := range urls {
-		err := common.ValidateURLDomain(baseUrl, url)
+		err := common.ValidateURLDomain(c.baseURL, url)
 		if err != nil {
-			c.log.Debug("Current URL is not on the same domain as the base URL", sl.Err(err), slog.String("current_url", url), slog.String("base_url", baseUrl))
+			c.log.Debug("Current URL is not on the same domain as the base URL", sl.Err(err), slog.String("current_url", url), slog.String("base_url", c.baseURL))
 			continue
 		}
 
@@ -35,11 +35,11 @@ func (c *Crawler) CrawlPage(baseUrl, currentUrl string, pages map[string]struct{
 			continue
 		}
 
-		if _, ok := pages[normalizedUrl]; ok {
+		if _, ok := c.Pages[normalizedUrl]; ok {
 			continue
 		}
-		pages[normalizedUrl] = struct{}{}
+		c.Pages[normalizedUrl] = struct{}{}
 
-		c.CrawlPage(baseUrl, url, pages)
+		c.CrawlPage(url)
 	}
 }

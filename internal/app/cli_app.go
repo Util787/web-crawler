@@ -6,8 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/Util787/task-manager/pkg/logger/sl"
-	"github.com/Util787/web-crawler/internal/common"
 	"github.com/Util787/web-crawler/internal/crawler"
 )
 
@@ -26,18 +24,12 @@ func Run(log *slog.Logger) {
 		os.Exit(1)
 	}
 
-	url := args[1]
-	log.Info("Starting crawler", slog.String("url", url))
+	baseURL := args[1]
+	log.Info("Starting crawler", slog.String("url", baseURL))
 
-	c := crawler.New(httpClientTimeout, log)
-	pages := make(map[string]struct{})
-	normalizedBaseUrl, err := common.NormalizeURL(url)
-	if err != nil {
-		log.Error("Error normalizing base URL", sl.Err(err))
-		return
-	}
-	pages[normalizedBaseUrl] = struct{}{}
-	c.CrawlPage(url, url, pages)
+	c := crawler.New(httpClientTimeout, log, baseURL)
 
-	log.Info("Found pages after crawl", slog.Int("pages_length", len(pages)), slog.Any("pages", pages))
+	c.CrawlPage(baseURL)
+
+	log.Info("Found pages after crawl", slog.Int("pages_length", len(c.Pages)), slog.Any("pages", c.Pages))
 }
