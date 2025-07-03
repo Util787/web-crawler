@@ -13,8 +13,8 @@ import (
 type Crawler struct {
 	Pages              map[string]struct{}
 	client             *common.Client
-	log                *slog.Logger
-	baseURL            string
+	Log                *slog.Logger
+	BaseURL            string
 	mu                 *sync.Mutex
 	concurrencyControl chan struct{}
 	Wg                 *sync.WaitGroup
@@ -30,9 +30,9 @@ func New(httpClientTimeout time.Duration, log *slog.Logger, baseURL string, conc
 	pages[normalizedBaseURL] = struct{}{}
 
 	return &Crawler{
-		baseURL:            baseURL,
+		BaseURL:            baseURL,
 		client:             common.NewClientWithTimeout(httpClientTimeout),
-		log:                log,
+		Log:                log,
 		Pages:              pages,
 		mu:                 &sync.Mutex{},
 		concurrencyControl: make(chan struct{}, concurrencyLimit),
