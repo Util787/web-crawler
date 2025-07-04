@@ -13,10 +13,12 @@ import (
 	"github.com/Util787/web-crawler/internal/commands"
 	"github.com/Util787/web-crawler/internal/common"
 	"github.com/Util787/web-crawler/internal/crawler"
+	"github.com/google/uuid"
+	"github.com/manifoldco/promptui"
 )
 
 // TODO: test promptui on linux (it doesnt work good on windows)
-const defaultOutputFilename = "output.txt"
+const defaultOutputFilename = "output"
 
 func Run(log *slog.Logger) {
 	reader := bufio.NewReader(os.Stdin)
@@ -73,10 +75,7 @@ func Run(log *slog.Logger) {
 				filename := getFilename(reader)
 				makeOutputToFile(c, filename)
 			} else {
-				fmt.Println("Pages:")
-				for page := range c.Pages {
-					fmt.Println(page)
-				}
+				makeOutputToTerminal(c)
 			}
 
 		case commands.ShowParamsCommand:
@@ -111,7 +110,38 @@ func getFilename(reader *bufio.Reader) string {
 }
 
 func makeOutputToFile(c *crawler.Crawler, filename string) {
-	file, err := os.Create(filename)
+	// Check if file exists
+	if _, err := os.Stat(filename + ".txt"); err == nil {
+		// File exists, asking for action
+		prompt := promptui.Select{
+			Label: fmt.Sprintf("File %s already exists. Choose action:", filename),
+			Items: []string{"Overwrite file", "Create new file", "Output to terminal"},
+		}
+
+		index, _, err := prompt.Run()
+		if err != nil {
+			fmt.Printf("Error choosing: %v\n", err)
+			return
+		}
+
+		switch index {
+		case 0: // Overwrite file
+			writeToFile(c, filename)
+		case 1: // Create new file
+			newFilename := filename + "." + uuid.New().String()
+			writeToFile(c, newFilename)
+		case 2: // Output to terminal
+			makeOutputToTerminal(c)
+			return
+		}
+	} else {
+		// File does not exist, creating new
+		writeToFile(c, filename)
+	}
+}
+
+func writeToFile(c *crawler.Crawler, filename string) {
+	file, err := os.Create(filename + ".txt")
 	if err != nil {
 		fmt.Printf("Error creating file: %v\n", err)
 		return
@@ -125,7 +155,14 @@ func makeOutputToFile(c *crawler.Crawler, filename string) {
 		fmt.Fprintf(writer, "%s\n", page)
 	}
 	writer.Flush()
-	fmt.Printf("Output written to %s\n", filename)
+	fmt.Printf("Result written to %s.txt\n", filename)
+}
+
+func makeOutputToTerminal(c *crawler.Crawler) {
+	fmt.Println("Pages:")
+	for page := range c.Pages {
+		fmt.Println(page)
+	}
 }
 
 func getHttpClientTimeout(reader *bufio.Reader) int {
