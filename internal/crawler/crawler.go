@@ -11,16 +11,17 @@ import (
 
 // TODO: add db
 type Crawler struct {
-	Pages              map[string]struct{}
-	client             *common.Client
 	Log                *slog.Logger
+	client             *common.Client
 	BaseURL            string
-	mu                 *sync.Mutex
-	concurrencyControl chan struct{}
+	Pages              map[string]struct{}
+	maxPages           int
 	Wg                 *sync.WaitGroup
+	concurrencyControl chan struct{}
+	mu                 *sync.Mutex
 }
 
-func New(httpClientTimeout time.Duration, log *slog.Logger, baseURL string, concurrencyLimit int) *Crawler {
+func New(httpClientTimeout time.Duration, log *slog.Logger, baseURL string, concurrencyLimit int, maxPages int) *Crawler {
 	pages := make(map[string]struct{})
 	normalizedBaseURL, err := common.NormalizeURL(baseURL)
 	if err != nil {
@@ -37,5 +38,6 @@ func New(httpClientTimeout time.Duration, log *slog.Logger, baseURL string, conc
 		mu:                 &sync.Mutex{},
 		concurrencyControl: make(chan struct{}, concurrencyLimit),
 		Wg:                 &sync.WaitGroup{},
+		maxPages:           maxPages,
 	}
 }

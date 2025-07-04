@@ -6,7 +6,7 @@ const (
 	CrawlCommand       = "crawl"
 	ToFileCommand      = "tofile"
 	ToTerminalCommand  = "toterm"
-	ShowParamsCommand  = "showparams"
+	ShowParamsCommand  = "show"
 	ResetParamsCommand = "reset"
 )
 

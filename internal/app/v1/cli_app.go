@@ -13,33 +13,39 @@ import (
 
 func Run(log *slog.Logger) {
 	args := os.Args
-	if len(args) < 4 {
+	if len(args) < 5 {
 		fmt.Println(args)
-		fmt.Println("Not enough arguments. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency>")
+		fmt.Println("Not enough arguments. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency> <max_pages>")
 		os.Exit(1)
 	}
-	if len(args) > 4 {
+	if len(args) > 5 {
 		fmt.Println(args)
-		fmt.Println("Too many arguments. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency>")
+		fmt.Println("Too many arguments. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency> <max_pages>")
 		os.Exit(1)
 	}
 
 	baseURL := args[1]
 	httpClientTimeout, err := strconv.Atoi(args[2])
 	if err != nil {
-		fmt.Println("Invalid HTTP client timeout. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency>")
+		fmt.Println("Invalid HTTP client timeout. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency> <max_pages>")
 		return
 	}
 
 	concurrencyLimit, err := strconv.Atoi(args[3])
 	if err != nil {
-		fmt.Println("Invalid max concurrency. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency>")
+		fmt.Println("Invalid max concurrency. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency> <max_pages>")
+		return
+	}
+
+	maxPages, err := strconv.Atoi(args[4])
+	if err != nil {
+		fmt.Println("Invalid max pages. Usage: go run cmd/main.go <url> <http_client_timeout> <max_concurrency> <max_pages>")
 		return
 	}
 
 	log.Info("Starting crawler", slog.String("url", baseURL))
 
-	c := crawler.New(time.Second*time.Duration(httpClientTimeout), log, baseURL, concurrencyLimit)
+	c := crawler.New(time.Second*time.Duration(httpClientTimeout), log, baseURL, concurrencyLimit, maxPages)
 
 	commands.CrawlPage(c, baseURL)
 
@@ -47,4 +53,4 @@ func Run(log *slog.Logger) {
 
 }
 
-// for test: go run cmd/main.go https://www.wagslane.dev 5 100
+// for test: go run cmd/main.go https://www.wagslane.dev 5 100 10

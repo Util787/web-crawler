@@ -29,7 +29,6 @@ func (c *Crawler) CrawlPage(currentUrl string) {
 	for _, url := range urls {
 		err := common.ValidateURLDomain(c.BaseURL, url)
 		if err != nil {
-			c.Log.Debug("Current URL is not on the same domain as the base URL", sl.Err(err), slog.String("current_url", url), slog.String("base_url", c.BaseURL))
 			continue
 		}
 
@@ -39,10 +38,16 @@ func (c *Crawler) CrawlPage(currentUrl string) {
 			continue
 		}
 
+		c.mu.Lock()
+		if c.maxPages > 0 && len(c.Pages) >= c.maxPages {
+			c.Log.Info("Max pages reached", slog.Int("max_pages", c.maxPages), slog.Int("current_pages_length", len(c.Pages)))
+			c.mu.Unlock()
+			return
+		}
 		if _, ok := c.Pages[normalizedUrl]; ok {
+			c.mu.Unlock()
 			continue
 		}
-		c.mu.Lock()
 		c.Pages[normalizedUrl] = struct{}{}
 		c.mu.Unlock()
 

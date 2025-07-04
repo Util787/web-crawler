@@ -23,10 +23,21 @@ func Run(log *slog.Logger) {
 	var httpClientTimeout int
 	var concurrencyLimit int
 	var baseURL string
+	var maxPages int
 
-	httpClientTimeout, concurrencyLimit, baseURL = commands.SetParams(reader)
+	fmt.Println("Use default params? (y/n): ")
+	confirmInput, _ := reader.ReadString('\n')
+	confirmInput = strings.ToLower(strings.TrimSpace(confirmInput))
+	if strings.HasPrefix(confirmInput, "y") {
+		httpClientTimeout = 10
+		concurrencyLimit = 100
+		maxPages = 10
+		baseURL = "https://google.com"
+	} else {
+		httpClientTimeout, concurrencyLimit, baseURL, maxPages = commands.SetParams(reader)
+	}
 
-	c := crawler.New(time.Second*time.Duration(httpClientTimeout), log, baseURL, concurrencyLimit)
+	c := crawler.New(time.Second*time.Duration(httpClientTimeout), log, baseURL, concurrencyLimit, maxPages)
 	fmt.Println("Crawler initialized. Enter a command (type 'help' for a list of commands):")
 
 	for {
@@ -91,11 +102,11 @@ func Run(log *slog.Logger) {
 			commands.ToTerminal(c)
 
 		case commands.ShowParamsCommand:
-			commands.ShowParams(c, httpClientTimeout, concurrencyLimit)
+			commands.ShowParams(c, httpClientTimeout, concurrencyLimit, maxPages)
 
 		case commands.ResetParamsCommand:
-			httpClientTimeout, concurrencyLimit, baseURL := commands.SetParams(reader)
-			c = crawler.New(time.Second*time.Duration(httpClientTimeout), log, baseURL, concurrencyLimit)
+			httpClientTimeout, concurrencyLimit, baseURL, maxPages = commands.ResetParams(reader, &httpClientTimeout, &concurrencyLimit, &baseURL, &maxPages)
+			c = crawler.New(time.Second*time.Duration(httpClientTimeout), log, baseURL, concurrencyLimit, maxPages)
 			fmt.Println("Parameters updated and crawler re-initialized.")
 
 		default:
