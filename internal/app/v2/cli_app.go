@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -49,6 +50,10 @@ func Run(log *slog.Logger) {
 				url := args[1]
 				if err := common.ValidateURL(url); err != nil {
 					fmt.Printf("Error:%v. Please enter a valid URL.\n", err)
+					continue
+				}
+				if _, err := http.Get(url); err != nil {
+					fmt.Printf("Error:%v. Can't ping url.\n", err)
 					continue
 				}
 				baseURL = url
@@ -132,6 +137,10 @@ func getBaseURL(reader *bufio.Reader) string {
 		}
 		if err := common.ValidateURL(input); err != nil {
 			fmt.Printf("Error:%v. Please enter a valid URL.\n", err)
+			continue
+		}
+		if _, err := http.Get(input); err != nil {
+			fmt.Printf("Error:%v. Can't ping url.\n", err)
 			continue
 		}
 		res = input
