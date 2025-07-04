@@ -1,11 +1,14 @@
 package commands
 
 import (
+	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/Util787/web-crawler/internal/crawler"
 )
+
+var CrawlPageUsage = fmt.Sprintf("%v <url> — crawl a page (if url is not provided, will crawl baseURL)", CrawlCommand)
 
 func CrawlPage(c *crawler.Crawler, url string) {
 	start := time.Now()
