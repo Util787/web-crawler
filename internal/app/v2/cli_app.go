@@ -15,7 +15,8 @@ import (
 	"github.com/Util787/web-crawler/internal/crawler"
 )
 
-//TODO: test promptui on linux (it doesnt work good on windows)
+// TODO: test promptui on linux (it doesnt work good on windows)
+const defaultOutputFilename = "output.txt"
 
 func Run(log *slog.Logger) {
 	reader := bufio.NewReader(os.Stdin)
@@ -62,11 +63,21 @@ func Run(log *slog.Logger) {
 			c.Pages = make(map[string]struct{})
 
 			commands.CrawlPage(c, c.BaseURL)
-			fmt.Println("Pages:")
-			for page := range c.Pages {
-				fmt.Println(page)
-			}
 			fmt.Printf("Crawling finished. Pages found: %d\n", len(c.Pages))
+
+			fmt.Print("Make output to file? (y/n): ")
+			confirmInput, _ := reader.ReadString('\n')
+			confirmInput = strings.ToLower(strings.TrimSpace(confirmInput))
+
+			if strings.HasPrefix(confirmInput, "y") {
+				filename := getFilename(reader)
+				makeOutputToFile(c, filename)
+			} else {
+				fmt.Println("Pages:")
+				for page := range c.Pages {
+					fmt.Println(page)
+				}
+			}
 
 		case commands.ShowParamsCommand:
 			fmt.Println("HTTP Client Timeout:", httpClientTimeout)
@@ -87,6 +98,34 @@ func Run(log *slog.Logger) {
 			fmt.Println("Unknown command. Type 'help' for a list of commands.")
 		}
 	}
+}
+
+func getFilename(reader *bufio.Reader) string {
+	fmt.Printf("Enter filename (skip with Enter to use default: %s): ", defaultOutputFilename)
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return defaultOutputFilename
+	}
+	return input
+}
+
+func makeOutputToFile(c *crawler.Crawler, filename string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		fmt.Printf("Error creating file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	fmt.Fprintf(writer, "Date:%s\n", time.Now().Format(time.RFC3339))
+	fmt.Fprintf(writer, "Base_URL:%s\n", c.BaseURL)
+	for page := range c.Pages {
+		fmt.Fprintf(writer, "%s\n", page)
+	}
+	writer.Flush()
+	fmt.Printf("Output written to %s\n", filename)
 }
 
 func getHttpClientTimeout(reader *bufio.Reader) int {

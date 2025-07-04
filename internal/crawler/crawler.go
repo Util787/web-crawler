@@ -9,7 +9,7 @@ import (
 	"github.com/Util787/web-crawler/internal/common"
 )
 
-// TODO: add db, make output to file
+// TODO: add db
 type Crawler struct {
 	Pages              map[string]struct{}
 	client             *common.Client
