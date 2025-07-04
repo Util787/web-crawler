@@ -15,18 +15,18 @@ import (
 	"github.com/Util787/web-crawler/internal/crawler"
 )
 
+//TODO: test promptui on linux (it doesnt work good on windows)
+
 func Run(log *slog.Logger) {
 	reader := bufio.NewReader(os.Stdin)
 
 	var httpClientTimeout int
 	var concurrencyLimit int
-	var baseURL string
 
 	httpClientTimeout = getHttpClientTimeout(reader)
 	concurrencyLimit = getConcurrencyLimit(reader)
-	baseURL = getBaseURL(reader)
 
-	c := crawler.New(time.Second*time.Duration(httpClientTimeout), log, baseURL, concurrencyLimit)
+	c := crawler.New(time.Second*time.Duration(httpClientTimeout), log, getBaseURL(reader), concurrencyLimit)
 	fmt.Println("Crawler initialized. Enter a command (type 'help' for a list of commands):")
 
 	for {
@@ -56,8 +56,7 @@ func Run(log *slog.Logger) {
 					fmt.Printf("Error:%v. Can't ping url.\n", err)
 					continue
 				}
-				baseURL = url
-				c.BaseURL = baseURL
+				c.BaseURL = url
 			}
 			// reset pages
 			c.Pages = make(map[string]struct{})
@@ -77,8 +76,7 @@ func Run(log *slog.Logger) {
 		case commands.ResetParamsCommand:
 			httpClientTimeout = getHttpClientTimeout(reader)
 			concurrencyLimit = getConcurrencyLimit(reader)
-			baseURL = getBaseURL(reader)
-			c = crawler.New(time.Second*time.Duration(httpClientTimeout), log, baseURL, concurrencyLimit)
+			c = crawler.New(time.Second*time.Duration(httpClientTimeout), log, getBaseURL(reader), concurrencyLimit)
 			fmt.Println("Parameters updated and crawler re-initialized.")
 
 		case commands.ExitCommand:
